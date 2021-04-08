@@ -39,8 +39,8 @@ extern "C" {
   //tempLog function that logs the temperature (celcius) and time (hours) into file in SD card.
   void tempLog(long milli, float temperature, File tempFile);
 
-  //vaccineLog function that logs the number of vaccines remaining in the shipper and time (hours) into file in SD card.
-  void vaccineLog(int vacc_out, int total, long milli, File vaccFile);
+  //vaccineLog function that diplays the number of vaccines remaining in the shipper to LCD.
+  void vaccineDisplay(int vacc_out, int total, LiquidCrystal lcd);
 
   //vaccine_out function that calcualtes and returns the closest number of vaccines withdrawable by the shipper (units of 11 doses) to the request of the user.
   int vaccine_out(int vacc_in, int total, int col);
@@ -56,6 +56,9 @@ extern "C" {
 
   //blueLED function that turns on or off the blue LED to represent the state of the retrieval compartment (on = retrieval compartment is opened, off = retreival compartment is closed).
   void blueLED(bool full, int pinNumber);
+  
+  //LogTime function that checks if the current time is 10min away from the last time the temperature was logged
+  bool LogTime (long milli, long prevMilli, long period);
 }
 
 #endif /* FUNCTION_H_ */
