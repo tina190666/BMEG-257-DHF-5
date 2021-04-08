@@ -13,9 +13,15 @@ Built with:
 ## Setup
 You will need the Arduino IDE or a work environment that has serial communication (such as PlatformIO on VScode)
 1. Clone the git repo
+
+
 ```git clone https://github.com/tina190666/BMEG-257-DHF-5/```
+
 2. Change directory
+
+
 ```cd BMEG-257-DHF-5```
+
 3. Open the Arduino IDE (or serial work environment)
 4. Verify and upload code to microcontroller
 5. Run!
