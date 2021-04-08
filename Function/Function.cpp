@@ -13,6 +13,7 @@
 #include <Servo.h>
 #include <SD.h>
 #include <SPI.h>
+#include <LiquidCrystal.h>
 
 extern "C"{
 
@@ -123,14 +124,16 @@ extern "C"{
   //This function logs the temperature of the vaccines (and corresponding time in hours) to SD card.
   void tempLog(long milli, float temperature, File tempFile){
     long hour = milli / (1000.0 * 60.0 * 60.0);  //convert time to hours
-    tempFile.println(hour + "     " + temperature);
+    tempFile.println(hour + "     "); 
+    tempFile.print(temperature);
   }
 
-  //This function logs the number of doses remaining in the shipper (and corresponding time in hours) to the SD card.
-  void vaccineLog(int vacc_out, int total, long milli, File vaccFile){
-    long hour = milli / (1000.0 * 60.0 * 60.0);  //convert time to hours
+  //This function diplays the number of vaccines remaining in the shipper to LCD..
+  void vaccineDisplay(int vacc_out, int total, LiquidCrystal lcd){
     int remain = total - vacc_out;
-    vaccFile.println(hour + "     " + remain);
+    lcd.setCursor(0,1); //print starts on the second row of the LCD
+    lcd.print(remain);
+    delay(1000);
   }
 
   //This function returns the closest (and higher) number of vaccines (in units of 11 vaccines) that can be withdrawn to the user request. (eg. if user inputs 10, vacc_out = 11 doses; if user inputs 12 doses, vacc_out = 22 doses)
@@ -166,6 +169,10 @@ extern "C"{
     }
   }
 
+  //This function checks if the current time is 10min away from the last time the temperature was logged
+  bool LogTime (long milli, long prevMilli, long period){
+    return ( (milli - prevMilli) >= period);
+  }
 
 
 }
