@@ -7,6 +7,7 @@
 #include <Servo.h>
 #include <SD.h>
 #include <SPI.h>
+#include <LiquidCrystal.h>
 
 #ifndef FUNCTION_H
 extern "C" {
