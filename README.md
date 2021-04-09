@@ -1,7 +1,7 @@
 # BMEG-257-DHF-5
 
 
-This code repository is apart of our Biomedical Engineering Design course proiejct, where we have built an alternative appratus for the Pfizer vaccine thermal shipper. This repo has all the code for controlling the vairous electronic parts we have, such as: LED, LCD, Servo motors, and a num pad. 
+This code repository is apart of our Biomedical Engineering Design course project, where we have built an alternative appratus for the Pfizer vaccine thermal shipper. This repo has all the code for controlling the vairous electronic parts we have, such as: LED, LCD, Servo motors, and a potentiometer. 
 
 ## Tech/framework used
 Built with:
