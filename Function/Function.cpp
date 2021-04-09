@@ -30,7 +30,7 @@ extern "C"{
     float volt = 5.0 / 1024.0 * volt_analog;
 
     //calculate voltage before gain
-    float volt_o = (volt * 0.032 / 5.0) + 3.892;
+    float volt_o = (volt * 0.062 / 5.0) + 3.862;
 
     //convert voltage to resistance
     float resistance = (4500.0 - 1000.0 * volt_o) / (4.5 + volt_o);
@@ -51,7 +51,7 @@ extern "C"{
     return (digitalRead(11) == 0);
   }
 
-  //This function turns on the red LED if the temperatire of the vaccines is above the optimal temperature range (-60C), and turns off the led if the temperature is within the optimal temperature range.
+  //This function turns on the red LED if the temperature of the vaccines is above the optimal temperature range (-60C), and turns off the led if the temperature is within the optimal temperature range.
   void redLED(bool thresh, int pinNumber){
     if(thresh){
       digitalWrite(pinNumber, HIGH);
@@ -121,9 +121,9 @@ extern "C"{
   }
 
 
-  //This function logs the temperature of the vaccines (and corresponding time in hours) to SD card.
+  //This function logs the temperature of the vaccines (and corresponding time in minutes) to SD card.
   void tempLog(long milli, float temperature, File tempFile){
-    long hour = milli / (1000.0 * 60.0 * 60.0);  //convert time to hours
+    long hour = milli / (1000.0 * 60.0);  //convert time to minutes
     tempFile.println(hour + "     "); 
     tempFile.print(temperature);
   }
@@ -141,7 +141,7 @@ extern "C"{
     if(vacc_in >= total || vacc_in % col == 0){
       return vacc_in;
     }
-    return (vacc_in / col + 1)*11;
+    return (vacc_in / col + 1) * 11;
 
   }
 
