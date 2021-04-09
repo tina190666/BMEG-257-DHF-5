@@ -60,6 +60,12 @@ extern "C" {
   
   //LogTime function that checks if the current time is 10min away from the last time the temperature was logged
   bool LogTime (long milli, long prevMilli, long period);
+  
+  // This function takes analogue input from the knob and returns the value.
+  int measureVacc();
+
+  // This function finds the number of vaccines required by the user (from knob input).
+  int convertVacc(int vacc_analog, int pos_knob);
 }
 
 #endif /* FUNCTION_H_ */
