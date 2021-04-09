@@ -173,6 +173,18 @@ extern "C"{
   bool LogTime (long milli, long prevMilli, long period){
     return ( (milli - prevMilli) >= period);
   }
+  
+  // This function takes analogue input from the knob and returns the value.
+  int measureVacc(){
+    return analogRead(A1);
+  }
+
+  // This function finds the number of vaccines required by the user (from knob input).
+  int convertVacc(int vacc_analog, int pos_knob){
+     int pos_current = map(vacc_analog, 1, 1024, 1, 255);
+     int vacc = map(pos_current - pos_knob, 1, 255, 0, 1001);
+     return vacc; 
+  }
 
 
 }
