@@ -158,7 +158,7 @@ void loop(){
 
          }
     }
-    completeDisplay();
+    completeDisplay(lcd);
 
     //close temp_Log file.
     temp_Log.close();
