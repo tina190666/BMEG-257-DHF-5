@@ -148,7 +148,7 @@ extern "C"{
     lcd.print(vacc_out);  
   }
   
-  void completeDisplay(LiquidCrystal lcd){
+  void completeDisplay(LiquidCrystal lcd, int total){
     lcd.clear();
     lcd.print("Process Completed");
     delay(2000);
