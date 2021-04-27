@@ -5,7 +5,6 @@
  *      Author: tina
  */
 #include <Servo.h>
-#include "Function.h"
 #include <SD.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -48,7 +47,7 @@ extern "C" {
   
   void vaccineDisplayOut(int vacc_out, LiquidCrystal lcd);
   
-  void completeDisplay(LiquidCrystal lcd);
+  void completeDisplay(LiquidCrystal lcd, int total);
 
   //vaccine_out function that calcualtes and returns the closest number of vaccines withdrawable by the shipper (units of 11 doses) to the request of the user.
   int vaccine_out(int vacc_in, int total, int col);
