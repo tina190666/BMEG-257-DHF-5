@@ -42,8 +42,10 @@ void setup() {
 
   pinMode(A1, INPUT);  //Setting Analog 1 pin as the input pin where the knob controlling the number of vaccines to be withdrawn will be connected to.
   
-  lcd.begin(16, 2); //intialize LCD
-  lcd.print("Vaccine Count: "); //print Vaccine Count: on the first row of the LCD
+  lcd.begin(16, 2);
+  lcd.print("Vaccine Count:");
+  lcd.setCursor(0,1);
+  lcd.print(total);
 
   // if you want to really speed stuff up, you can go into 'fast 400khz I2C' mode
 // some i2c devices dont like this so much so if you're sharing the bus, watch
@@ -81,18 +83,22 @@ void loop(){
     if(!tempThresh){                    //if vaccines are thermally stable
       int vacc_analog = measureVacc();   //read analogue input sent to the Arduino from A1 pin
       int vacc_in = convertVacc(vacc_analog, pos_knob); //convert analogue input to number of doses.
+      delay(2000);
       if(vacc_in != 0){                  //if the number of doses is not equal to 0, start dispensing process
         pos_knob = map(vacc_analog, 1, 1024, 1, 255); //update position variable of the knob. 
         int vacc_out = vaccine_out(vacc_in, total, col);  //calculate the closest number of vaccines to the input that can be output from the shipper.
-        vaccineDisplay(vacc_out, total, lcd);  //display the number of doses left in the shipper after the determined amount is withdrawn on the LCD
+        vaccineDisplayOut(vacc_out, lcd);  //display the number of doses left in the shipper after the determined amount is withdrawn on the LCD
+        delay(2000);
+        vaccineDisplay(total-vacc_out);
+        total = total-vacc_out;
         int rotation = (vacc_out, col);          //calculate the number of rotations of the servo required to dispense vaccines
-
         //Initialize variables to keep track of number of rotations and the number of rows dispensed since the first withdrawal.
         int count_rot = 0;
         int count_catch = 0;
 
         while(count_rot < rotation){             //when the number of rotations performed is less than the required amount for the withdrawal
           pos(layer, pwm, count_col);  //rotate the servo that controls the lowest non-empty layer in the shipper to dispense a column of vaccine into the catch compartment.
+          delay(1000);
           count_rot++;
           count_catch++;
           count_col++;
@@ -101,12 +107,12 @@ void loop(){
             layer++;                              //if the layer is empty, increment layer by 1 (for next round of rotation or withdrawal)
           }
 
-        if(catch_full || count_rot == rotation){   //if the catch compartment is full or if all required doses is in the catch compartment
+        if(catch_full(count_rot)|| count_rot == rotation){   //if the catch compartment is full or if all required doses is in the catch compartment
+            catchSlide(6);   
             boolean state = true;          
-            blueLED(state, 9);                   //turn on the blue LED to indicate catch compartment is ready to drop vaccines into the retrieval compartment
-            catchSlide(6);                       //slide the base of the catch compartment, allowing the vaccines to drop into the retrieval compartment
+            blueLED(state, 9); //slide the base of the catch compartment, allowing the vaccines to drop into the retrieval compartment
             while(!accessState()){      //when the retrieval compartment is not opened by the user
-              blinkBlue(11);            //blink the blue LED to alert the user to pick up vaccines from the retreival compartment
+              blinkBlue(9);            //blink the blue LED to alert the user to pick up vaccines from the retreival compartment
             }
 
             blueLED(accessState(), 9); //blueLED stays on when retrieval compartment is opened.
@@ -115,7 +121,9 @@ void loop(){
               //measure data from temperature sensor and convert to the temperature of the vaccines
               volt_analog = measure();                    
               temperature = convert(volt_analog);
+              delay(1000);
               tempThresh = ThresholdTemp(temperature);
+              redLED(tempThresh,8);
               milli = millis();
               bool logTime = LogTime(milli, prevMilli, period); //checks if the current time is more than or equal to 10 minutes away from the last time temperature data was logged
               if(logTime){                              //if the current time is more than or equal to 10 minutes away from the last time temperature data was logged
@@ -123,13 +131,21 @@ void loop(){
                 prevMilli = milli;
               }
             }
+          
+            blueLED(accessState(), 9);
 
-
+            delay(1000);
+            volt_analog = measure();                    
+            temperature = convert(volt_analog);
+            delay(1000);
+            tempThresh = ThresholdTemp(temperature);
+            redLED(tempThresh,8);
             while(tempThresh){   //after the retrieval compartment is closed by the user and if the temperature of vaccines is above -60C; looped until the vaccine temperature is within the optimal range.
               //measure data from temperature sensor and convert to the temperature of the vaccines
               volt_analog = measure();
               temperature = convert(volt_analog);
               tempThresh = ThresholdTemp(temperature);
+              redLED(tempThresh, 8);
               milli = millis();
               bool logTime = LogTime(milli, prevMilli, period); //checks if the current time is more than or equal to 10 minutes away from the last time temperature data was logged
               if(logTime){                              //if the current time is more than or equal to 10 minutes away from the last time temperature data was logged
@@ -142,6 +158,7 @@ void loop(){
 
          }
     }
+    completeDisplay();
 
     //close temp_Log file.
     temp_Log.close();
