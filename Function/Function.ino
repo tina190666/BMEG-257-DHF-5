@@ -89,7 +89,7 @@ void loop(){
         int vacc_out = vaccine_out(vacc_in, total, col);  //calculate the closest number of vaccines to the input that can be output from the shipper.
         vaccineDisplayOut(vacc_out, lcd);  //display the number of doses left in the shipper after the determined amount is withdrawn on the LCD
         delay(2000);
-        vaccineDisplay(total-vacc_out);
+        vaccineDisplay(total-vacc_out, lcd);
         total = total-vacc_out;
         int rotation = (vacc_out, col);          //calculate the number of rotations of the servo required to dispense vaccines
         //Initialize variables to keep track of number of rotations and the number of rows dispensed since the first withdrawal.
@@ -108,7 +108,7 @@ void loop(){
           }
 
         if(catch_full(count_rot)|| count_rot == rotation){   //if the catch compartment is full or if all required doses is in the catch compartment
-            catchSlide(6);   
+            catchSlide(total, lcd);   
             boolean state = true;          
             blueLED(state, 9); //slide the base of the catch compartment, allowing the vaccines to drop into the retrieval compartment
             while(!accessState()){      //when the retrieval compartment is not opened by the user
