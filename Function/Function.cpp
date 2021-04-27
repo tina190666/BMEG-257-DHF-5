@@ -48,7 +48,7 @@ extern "C"{
 
   //This function checks if the retrieval compartment is opened by the user.
   bool accessState(){
-    return (digitalRead(11) == 0);
+    return (digitalRead(7) == 0);
   }
 
   //This function turns on the red LED if the temperature of the vaccines is above the optimal temperature range (-60C), and turns off the led if the temperature is within the optimal temperature range.
@@ -62,13 +62,18 @@ extern "C"{
 
 
   //This function tells the user to slide the switch connected to the base of the catch compartment, allowing the vaccines to drop into the retrieval compartment
-  void catchSlide(int pinNumber){
-     Serial.print("flip the switch");  //requests the user to slide the switch
-     delay(5000);                      //wait for 5 seconds to allow the user to slide switch
-     while(digitalRead(10)==1){       //when switch is slided
-       delay(13000); //wait for 13 seconds, 13 rows in the catcher dropping to retrieval compartment at the rate of 1 row/second
-       Serial.print("flip the switch back");  //requests the user to slide the switch back
-    }
+  void catchSlide(int total, LiquidCrystal lcd){
+      lcd.clear();
+      lcd.print("Flip Switch");
+      delay(5000);                      //wait for 5 seconds to allow the user to slide switch
+      delay(13000); //wait for 13 seconds, 13 rows in the catcher dropping to retrieval compartment at the rate of 1 column /second
+      lcd.clear();
+      lcd.print("Flip Switch Back");
+      delay(5000);
+      lcd.clear();
+      lcd.print("Vaccine Count: ");
+      lcd.setCursor(0,1);
+      lcd.print(total);
   }
 
   //This function blinks the blue LED to alert the user that the retrieval compartment is ready to be opened.
@@ -129,11 +134,28 @@ extern "C"{
   }
 
   //This function diplays the number of vaccines remaining in the shipper to LCD..
-  void vaccineDisplay(int vacc_out, int total, LiquidCrystal lcd){
-    int remain = total - vacc_out;
-    lcd.setCursor(0,1); //print starts on the second row of the LCD
-    lcd.print(remain);
-    delay(1000);
+  void vaccineDisplay(int vacc_out, LiquidCrystal lcd){
+    lcd.clear();
+    lcd.print("Vaccine Count: ");
+    lcd.setCursor(0,1);
+    lcd.print(vacc_out);
+  }
+  
+  void vaccineDisplayOut(int vacc_out, LiquidCrystal lcd){
+    lcd.clear();
+    lcd.print("Vaccine Output: ");
+    lcd.setCursor(0,1);
+    lcd.print(vacc_out);  
+  }
+  
+  void completeDisplay(LiquidCrystal lcd){
+    lcd.clear();
+    lcd.print("Process Completed");
+    delay(2000);
+    lcd.clear();
+    lcd.print("Vaccine Count: ");
+    lcd.setCursor(0,1);
+    lcd.print(total);
   }
 
   //This function returns the closest (and higher) number of vaccines (in units of 11 vaccines) that can be withdrawn to the user request. (eg. if user inputs 10, vacc_out = 11 doses; if user inputs 12 doses, vacc_out = 22 doses)
@@ -182,7 +204,7 @@ extern "C"{
   // This function finds the number of vaccines required by the user (from knob input).
   int convertVacc(int vacc_analog, int pos_knob){
      int pos_current = map(vacc_analog, 1, 1024, 1, 255);
-     int vacc = map(pos_current - pos_knob, 1, 255, 0, 1001);
+     int vacc = map(pos_current - pos_knob, 1, 255, 3, 1009);
      return vacc; 
   }
 
