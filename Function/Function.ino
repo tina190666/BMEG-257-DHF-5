@@ -107,7 +107,7 @@ void loop(){
             layer++;                              //if the layer is empty, increment layer by 1 (for next round of rotation or withdrawal)
           }
 
-        if(catch_full(count_rot)|| count_rot == rotation){   //if the catch compartment is full or if all required doses is in the catch compartment
+        if(catchFull(count_rot)|| count_rot == rotation){   //if the catch compartment is full or if all required doses is in the catch compartment
             catchSlide(total, lcd);   
             boolean state = true;          
             blueLED(state, 9); //slide the base of the catch compartment, allowing the vaccines to drop into the retrieval compartment
@@ -158,7 +158,7 @@ void loop(){
 
          }
     }
-    completeDisplay(lcd);
+    completeDisplay(lcd, total);
 
     //close temp_Log file.
     temp_Log.close();
