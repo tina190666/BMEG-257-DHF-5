@@ -32,8 +32,8 @@ extern "C" {
   void redLED(bool thresh, int pinNumber);
 
   //catchSlide function that tells the user to slide the base of the catch compartment, allowing the vaccines to drop from the catch compartment to the retrieval compartment.
-  void catchSlide(int pinNumber);
-
+  void catchSlide(int total, LiquidCrystal lcd);
+  
   //blinkBlue function that blinks the blue LED when retrieval compartment is not opened but ready to to be opened.
   void blinkBlue(int pinNumber);
 
@@ -44,7 +44,11 @@ extern "C" {
   void tempLog(long milli, float temperature, File tempFile);
 
   //vaccineDisplay function that diplays the number of vaccines remaining in the shipper to LCD.
-  void vaccineDisplay(int vacc_out, int total, LiquidCrystal lcd);
+  void vaccineDisplay(int vacc_out, LiquidCrystal lcd);
+  
+  void vaccineDisplayOut(int vacc_out, LiquidCrystal lcd);
+  
+  void completeDisplay(LiquidCrystal lcd);
 
   //vaccine_out function that calcualtes and returns the closest number of vaccines withdrawable by the shipper (units of 11 doses) to the request of the user.
   int vaccine_out(int vacc_in, int total, int col);
