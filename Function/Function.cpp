@@ -13,7 +13,6 @@
 #include <Servo.h>
 #include <SD.h>
 #include <SPI.h>
-#include <LiquidCrystal.h>
 
 extern "C"{
 
@@ -27,13 +26,13 @@ extern "C"{
   float convert(int volt_analog){
 
     //convert analogue input to voltage
-    //float volt = 5.0 / 1024.0 * volt_analog;
+    float volt = 5.0 / 1024.0 * volt_analog;
 
     //calculate voltage before gain
-    float volt_o = (volt_analog / 443.74 );
+    float volt_o = (volt * 0.032 / 5.0) + 3.892;
 
     //convert voltage to resistance
-    float resistance = (7832.0 / 101.0 - (7832.0 * volt_o / 9.0)) / (1.0 - (1.0 / 101.0) + volt_o / 9.0);
+    float resistance = (4500.0 - 1000.0 * volt_o) / (4.5 + volt_o);
 
     //convert resistance to temperature
     float temp = (resistance - 100.33) / (2.0 / 5.0);
@@ -48,10 +47,10 @@ extern "C"{
 
   //This function checks if the retrieval compartment is opened by the user.
   bool accessState(){
-    return (digitalRead(7) == 0);
+    return (digitalRead(11) == 0);
   }
 
-  //This function turns on the red LED if the temperature of the vaccines is above the optimal temperature range (-60C), and turns off the led if the temperature is within the optimal temperature range.
+  //This function turns on the red LED if the temperatire of the vaccines is above the optimal temperature range (-60C), and turns off the led if the temperature is within the optimal temperature range.
   void redLED(bool thresh, int pinNumber){
     if(thresh){
       digitalWrite(pinNumber, HIGH);
@@ -62,18 +61,13 @@ extern "C"{
 
 
   //This function tells the user to slide the switch connected to the base of the catch compartment, allowing the vaccines to drop into the retrieval compartment
-  void catchSlide(int total, LiquidCrystal lcd){
-      lcd.clear();
-      lcd.print("Flip Switch");
-      delay(5000);                      //wait for 5 seconds to allow the user to slide switch
-      delay(13000); //wait for 13 seconds, 13 rows in the catcher dropping to retrieval compartment at the rate of 1 column /second
-      lcd.clear();
-      lcd.print("Flip Switch Back");
-      delay(5000);
-      lcd.clear();
-      lcd.print("Vaccine Count: ");
-      lcd.setCursor(0,1);
-      lcd.print(total);
+  void catchSlide(int pinNumber){
+     Serial.print("flip the switch");  //requests the user to slide the switch
+     delay(5000);                      //wait for 5 seconds to allow the user to slide switch
+     while(digitalRead(10)==1){       //when switch is slided
+       delay(13000); //wait for 13 seconds, 13 rows in the catcher dropping to retrieval compartment at the rate of 1 row/second
+       Serial.print("flip the switch back");  //requests the user to slide the switch back
+    }
   }
 
   //This function blinks the blue LED to alert the user that the retrieval compartment is ready to be opened.
@@ -89,73 +83,54 @@ extern "C"{
   void pos(int layer, Adafruit_PWMServoDriver pwm, int col_count){
     if(layer == 1){
         for(uint16_t i=0; i<4096; i+= 8){
-            pwm.setPwn(0,0,(i+ (4096/16)*0 % 4096));
+            pwm.setPin(0,0,(i+ (4096/16)*0 % 4096));
         } //rotate the servo 13.85 degrees -- corresponds to dispensing one row of the vaccines
         delay(1000);
       }else if(layer == 2){
         for(uint16_t i=0; i<4096; i+= 8){
-            pwm.setPwn(1,0,(i+ (4096/16)*1 % 4096));
+            pwm.setPin(1,0,(i+ (4096/16)*1 % 4096));
         }
         delay(1000);
       }else if(layer == 3){
         for(uint16_t i=0; i<4096; i+= 8){
-            pwm.setPwn(2,0,(i+ (4096/16)*2 % 4096));
+            pwm.setPin(2,0,(i+ (4096/16)*2 % 4096));
         }
         delay(1000);
       }else if(layer == 4){
         for(uint16_t i=0; i<4096; i+= 8){
-            pwm.setPwn(3,0,(i+ (4096/16)*3 % 4096));
+            pwm.setPin(3,0,(i+ (4096/16)*3 % 4096));
         }
         delay(1000);
       }else if(layer == 5){
         for(uint16_t i=0; i<4096; i+= 8){
-            pwm.setPwn(4,0,(i+ (4096/16)*4 % 4096));
+            pwm.setPin(4,0,(i+ (4096/16)*4 % 4096));
         }
         delay(1000);
       }else if(layer == 6){
         for(uint16_t i=0; i<4096; i+= 8){
-            pwm.setPwn(5,0,(i+ (4096/16)*5 % 4096));
+            pwm.setPin(5,0,(i+ (4096/16)*5 % 4096));
         }
         delay(1000);
       }else{
         for(uint16_t i=0; i<4096; i+= 8){
-            pwm.setPwn(6,0,(i+ (4096/16)*6 % 4096));
+            pwm.setPin(6,0,(i+ (4096/16)*6 % 4096));
         }
         delay(1000);
       }
   }
 
 
-  //This function logs the temperature of the vaccines (and corresponding time in minutes) to SD card.
+  //This function logs the temperature of the vaccines (and corresponding time in hours) to SD card.
   void tempLog(long milli, float temperature, File tempFile){
-    long hour = milli / (1000.0 * 60.0);  //convert time to minutes
-    tempFile.println(hour + "     "); 
-    tempFile.print(temperature);
+    long hour = milli / (1000.0 * 60.0 * 60.0);  //convert time to hours
+    tempFile.println(hour + "     " + temperature);
   }
 
-  //This function diplays the number of vaccines remaining in the shipper to LCD..
-  void vaccineDisplay(int vacc_out, LiquidCrystal lcd){
-    lcd.clear();
-    lcd.print("Vaccine Count: ");
-    lcd.setCursor(0,1);
-    lcd.print(vacc_out);
-  }
-  
-  void vaccineDisplayOut(int vacc_out, LiquidCrystal lcd){
-    lcd.clear();
-    lcd.print("Vaccine Output: ");
-    lcd.setCursor(0,1);
-    lcd.print(vacc_out);  
-  }
-  
-  void completeDisplay(LiquidCrystal lcd, int total){
-    lcd.clear();
-    lcd.print("Process Completed");
-    delay(2000);
-    lcd.clear();
-    lcd.print("Vaccine Count: ");
-    lcd.setCursor(0,1);
-    lcd.print(total);
+  //This function logs the number of doses remaining in the shipper (and corresponding time in hours) to the SD card.
+  void vaccineLog(int vacc_out, int total, long milli, File vaccFile){
+    long hour = milli / (1000.0 * 60.0 * 60.0);  //convert time to hours
+    int remain = total - vacc_out;
+    vaccFile.println(hour + "     " + remain);
   }
 
   //This function returns the closest (and higher) number of vaccines (in units of 11 vaccines) that can be withdrawn to the user request. (eg. if user inputs 10, vacc_out = 11 doses; if user inputs 12 doses, vacc_out = 22 doses)
@@ -163,7 +138,7 @@ extern "C"{
     if(vacc_in >= total || vacc_in % col == 0){
       return vacc_in;
     }
-    return (vacc_in / col + 1) * 11;
+    return (vacc_in / col + 1)*11;
 
   }
 
@@ -191,22 +166,6 @@ extern "C"{
     }
   }
 
-  //This function checks if the current time is 10min away from the last time the temperature was logged
-  bool LogTime (long milli, long prevMilli, long period){
-    return ( (milli - prevMilli) >= period);
-  }
-  
-  // This function takes analogue input from the knob and returns the value.
-  int measureVacc(){
-    return analogRead(A1);
-  }
-
-  // This function finds the number of vaccines required by the user (from knob input).
-  int convertVacc(int vacc_analog, int pos_knob){
-     int pos_current = map(vacc_analog, 1, 1024, 1, 255);
-     int vacc = map(pos_current - pos_knob, 1, 255, 3, 1009);
-     return vacc; 
-  }
 
 
 }
