@@ -27,13 +27,13 @@ extern "C"{
   float convert(int volt_analog){
 
     //convert analogue input to voltage
-    float volt = 5.0 / 1024.0 * volt_analog;
+    //float volt = 5.0 / 1024.0 * volt_analog;
 
     //calculate voltage before gain
-    float volt_o = (volt * 0.062 / 5.0) + 3.862;
+    float volt_o = (volt_analog / 443.74 );
 
     //convert voltage to resistance
-    float resistance = (4500.0 - 1000.0 * volt_o) / (4.5 + volt_o);
+    float resistance = (7832.0 / 101.0 - (7832.0 * volt_o / 9.0)) / (1.0 - (1.0 / 101.0) + volt_o / 9.0);
 
     //convert resistance to temperature
     float temp = (resistance - 100.33) / (2.0 / 5.0);
